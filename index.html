@@ -184,11 +184,12 @@
       .yes-form button:hover {
         background-color: #ff6b81;
       }
-      /* Adjust modal width on smaller screens */
+      /* Adjust modal width and centering on smaller screens */
       @media (max-width: 600px) {
         .modal {
-          max-width: 400px;
-          width: 90%;
+          width: 80%;
+          max-width: 350px;
+          padding: 20px;
         }
       }
     </style>
@@ -214,9 +215,7 @@
       <div class="buttons">
         <!-- Three buttons stacked vertically -->
         <button class="yes" onclick="openModal('yesModal')">Yes</button>
-        <button class="reschedule" onclick="openModal('rescheduleModal')">
-          Reschedule
-        </button>
+        <button class="reschedule" onclick="openModal('rescheduleModal')">Reschedule</button>
         <button class="no" id="noBtn" onclick="transformNoButton()">No</button>
       </div>
     </div>
@@ -296,7 +295,7 @@
         }
       }
 
-      // Submit the Yes form, return thank you message
+      // Submit the Yes form via fetch so that it sends an email and then shows a thank-you message.
       function submitYesForm(e) {
         e.preventDefault();
         const data = { response: "She said yes!" };
@@ -320,7 +319,7 @@
           });
       }
 
-      // Submit the Reschedule form, return thank you message
+      // Submit the Reschedule form via fetch so that it sends an email and then shows a thank-you message.
       function submitRescheduleForm(e) {
         e.preventDefault();
         const form = e.target;
