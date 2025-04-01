@@ -149,12 +149,19 @@
       }
       .reschedule-form input,
       .reschedule-form textarea {
-        width: 100%;
-        padding: 8px;
-        margin: 5px 0;
+        /* Center the form fields */
+        width: 90%;
+        max-width: 400px;
+        margin-bottom: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
         font-size: 16px;
+        padding: 8px;
+      }
+      .reschedule-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       .reschedule-form button {
         padding: 10px 20px;
@@ -215,7 +222,9 @@
       <div class="buttons">
         <!-- Three buttons stacked vertically -->
         <button class="yes" onclick="openModal('yesModal')">Yes</button>
-        <button class="reschedule" onclick="openModal('rescheduleModal')">Reschedule</button>
+        <button class="reschedule" onclick="openModal('rescheduleModal')">
+          Reschedule
+        </button>
         <button class="no" id="noBtn" onclick="transformNoButton()">No</button>
       </div>
     </div>
