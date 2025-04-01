@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Date Invitation with Nick</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Flatpickr CSS for a modern date/time picker -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <style>
+      /* Global Styles */
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 800px;
+        width: 100%;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        text-align: center;
+      }
+      .invitation-header {
+        margin-bottom: 20px;
+      }
+      .invitation-header h1 {
+        font-size: 2em;
+        margin: 0;
+      }
+      .invitation-header .venue-name {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #e74c3c;
+        display: inline-block;
+        animation: fadeIn 1s ease-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      img {
+        display: block;
+        max-width: 80%;
+        height: auto;
+        margin: 20px auto;
+        border-radius: 10px;
+      }
+      p a {
+        text-decoration: none;
+        color: #0066cc;
+        font-weight: bold;
+      }
+      .info {
+        font-size: 1.3em;
+        color: #444;
+        margin: 10px 0;
+      }
+      .buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+      }
+      .buttons button {
+        width: 80%;
+        max-width: 300px;
+        padding: 14px 24px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 6px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      /* All buttons: red (#e74c3c) to pink (#ff6b81) on hover/click */
+      .yes,
+      .reschedule,
+      .reschedule-form button,
+      .yes-form button {
+        background-color: #e74c3c;
+        color: #fff;
+      }
+      .yes:hover,
+      .reschedule:hover,
+      .reschedule-form button:hover,
+      .yes-form button:hover {
+        background-color: #ff6b81;
+      }
+      /* The actual No button (outside the container) */
+      #noBtn {
+        padding: 14px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        background-color: #e74c3c;
+        color: #fff;
+        position: fixed;
+      }
+      #noBtn:hover {
+        background-color: #ff6b81;
+      }
+      /* Placeholder for the No button layout */
+      #noBtnPlaceholder {
+        height: 50px; /* approximate button height */
+        width: 80%;
+        max-width: 300px;
+        margin: 10px 0;
+      }
+      /* Modal & Overlay Styles */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 100;
+        display: none;
+      }
+      .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        z-index: 101;
+        width: 90%;
+        max-width: 500px;
+        display: none;
+        text-align: center;
+      }
+      .modal .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #aaa;
+        cursor: pointer;
+      }
+      .modal .close:hover {
+        color: #000;
+      }
+      .modal h2 {
+        margin-top: 0;
+      }
+      .reschedule-form input,
+      .reschedule-form textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+      .reschedule-form button {
+        padding: 10px 20px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+        background-color: #e74c3c;
+        color: #fff;
+      }
+      .reschedule-form button:hover {
+        background-color: #ff6b81;
+      }
+      /* Confirm button in the Yes modal (matches reschedule Send button) */
+      .yes-form button {
+        padding: 10px 20px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+        background-color: #e74c3c;
+        color: #fff;
+      }
+      .yes-form button:hover {
+        background-color: #ff6b81;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="invitation-header">
+        <h1>Nick has invited you to</h1>
+        <div class="venue-name">Lolita Fort Point</div>
+      </div>
+      <img
+        src="https://media-hosting.imagekit.io/30033cad970848f2/screenshot_1743469489953.png?Expires=1838077490&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=S-MVibBQnqbq5VBeBdcnIGR5u5Vg~7oP2VYk6IgB61bVhTew9eh4GNl16U5FVmpfdBDRvw0QjOwccNnAoDJdU3GhObaDb3vubEy~bWFuCNMr9ylsTgK66dke6Ztzbqbey9ijjzaAK7W8r2lCVLmWuyy2ku89IQB~qCvCUlgEdtCoYj58VMk1GiAiRmYZ~rgFjQLkvHpcCeQ-cLXoOTnC3M5GNZwTSQgqaxMa5VUPBbFs2ofr7ZPUcwk92WHqRMsIaunFt7r-vnuY2omCHp2B58gDlPTHf5V31RXBUYtBM6JFO9d2pJHOFRiQBzeYnczmfRldlMxv23Y3nH~YRGJUPw__"
+        alt="Lolita"
+      />
+      <p class="info">
+        <a
+          href="https://www.google.com/maps/place/Lolita+Fort+Point/@42.350451,-71.0696585,15z/data=!3m2!4b1!5s0x89e37a7fea5a872d:0x54c55e3a07c2bcda!4m6!3m5!1s0x89e37a7fed399dff:0xdf4e5333375ee7af!8m2!3d42.3504366!4d-71.0512045!16s%2Fg%2F11hbgb2tt3?entry=ttu&g_ep=EgoyMDI1MDMyNS4xIKXMDSoJLDEwMjExNDU1SAFQAw%3D%3D"
+          target="_blank"
+          >253 Summer St, Boston, MA 02210</a
+        >
+      </p>
+      <p class="info">Saturday, April 5th at 11:30 AM</p>
+      <div class="buttons">
+        <!-- Yes button opens the Yes modal with details -->
+        <button class="yes" onclick="openModal('yesModal')">Yes</button>
+        <button class="reschedule" onclick="openModal('rescheduleModal')">Reschedule</button>
+        <!-- Placeholder for the No button layout -->
+        <div id="noBtnPlaceholder"></div>
+      </div>
+    </div>
+    <!-- The actual No button (moves when clicked) -->
+    <button id="noBtn" onclick="moveNoButton()">No</button>
+
+    <!-- Yes Modal with Form and Details -->
+    <div id="yesModal" class="modal">
+      <span class="close" onclick="closeModal('yesModal')">&times;</span>
+      <div id="yesModalContent">
+        <h2>Confirm Your Response</h2>
+        <p><strong>Lolita Fort Point</strong></p>
+        <p>Saturday, April 5th at 11:30 AM</p>
+        <p>253 Summer St, Boston, MA 02210</p>
+        <form class="yes-form" onsubmit="submitYesForm(event)">
+          <input type="hidden" name="response" value="She said yes!" />
+          <button type="submit" class="yes">Confirm</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div id="rescheduleModal" class="modal">
+      <span class="close" onclick="closeModal('rescheduleModal')">&times;</span>
+      <h2>Propose a New Date &amp; Time</h2>
+      <form class="reschedule-form" onsubmit="submitRescheduleForm(event)">
+        <label for="newDateTime">Select New Date &amp; Time:</label>
+        <input
+          id="newDateTime"
+          name="newDateTime"
+          placeholder="Select Date and Time"
+          required
+        />
+        <textarea
+          name="message"
+          placeholder="Optional Message"
+          rows="4"
+        ></textarea>
+        <input type="hidden" name="_subject" value="New Proposed Date!" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+
+    <!-- Overlay for modals -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Include Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+      // Initialize Flatpickr on the new date/time input
+      flatpickr("#newDateTime", {
+        enableTime: true,
+        dateFormat: "m/d/Y h:i K"
+      });
+      
+      function positionNoButton() {
+        var placeholder = document.getElementById("noBtnPlaceholder").getBoundingClientRect();
+        var noBtn = document.getElementById("noBtn");
+        noBtn.style.width = placeholder.width + "px";
+        noBtn.style.left = placeholder.left + "px";
+        noBtn.style.top = placeholder.top + "px";
+      }
+      window.onload = positionNoButton;
+      window.addEventListener("resize", positionNoButton);
+
+      // Open a modal and display the overlay.
+      function openModal(modalId) {
+        document.getElementById("overlay").style.display = "block";
+        document.getElementById(modalId).style.display = "block";
+      }
+
+      // Close a modal and hide the overlay if no modals are open.
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+        if (!document.querySelector(".modal[style*='display: block']")) {
+          document.getElementById("overlay").style.display = "none";
+        }
+      }
+
+      function moveNoButton() {
+        var noBtn = document.getElementById("noBtn");
+        var containerRect = document.querySelector(".container").getBoundingClientRect();
+        var newX, newY;
+        do {
+          newX = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+          newY = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+        } while (
+          newX < containerRect.right &&
+          newX + noBtn.offsetWidth > containerRect.left &&
+          newY < containerRect.bottom &&
+          newY + noBtn.offsetHeight > containerRect.top
+        );
+        noBtn.style.left = newX + "px";
+        noBtn.style.top = newY + "px";
+      }
+
+      // Submit the Yes form, return thank you pop-up
+      function submitYesForm(e) {
+        e.preventDefault();
+        const data = { response: "She said yes!" };
+        fetch("https://formspree.io/f/mrbpawev", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        })
+          .then((res) => {
+            if (res.ok) {
+              document.getElementById("yesModalContent").innerHTML =
+                "<h2>Thank You!</h2><p>I'm so excited about our date! Can't wait to see you!</p>";
+            } else {
+              document.getElementById("yesModalContent").innerHTML =
+                "<h2>Oops!</h2><p>Something went wrong. Please try again later.</p>";
+            }
+          })
+          .catch((err) => {
+            document.getElementById("yesModalContent").innerHTML =
+              "<h2>Oops!</h2><p>Something went wrong. Please try again later.</p>";
+          });
+      }
+
+      // Submit the Reschedule form, return thank you pop-up
+      function submitRescheduleForm(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
+        fetch("https://formspree.io/f/mrbpawev", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        })
+          .then((res) => {
+            if (res.ok) {
+              document.getElementById("rescheduleModal").innerHTML =
+                "<span class='close' onclick=\"closeModal('rescheduleModal')\">&times;</span><h2>Thank You!</h2><p>Your request will be reviewed. You should head back in 3-5 business days.</p>";
+            } else {
+              document.getElementById("rescheduleModal").innerHTML =
+                "<span class='close' onclick=\"closeModal('rescheduleModal')\">&times;</span><h2>Oops!</h2><p>Something went wrong. Please try again later.</p>";
+            }
+          })
+          .catch((err) => {
+            document.getElementById("rescheduleModal").innerHTML =
+              "<span class='close' onclick=\"closeModal('rescheduleModal')\">&times;</span><h2>Oops!</h2><p>Something went wrong. Please try again later.</p>";
+          });
+      }
+    </script>
+  </body>
+</html>
