@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Date Invitation with Nick</title>
+    <title>Date Invitation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Flatpickr CSS for a modern date/time picker -->
     <link
@@ -28,7 +28,6 @@
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        position: relative;
         text-align: center;
       }
       .invitation-header {
@@ -66,6 +65,7 @@
         color: #444;
         margin: 10px 0;
       }
+      /* Vertical buttons container */
       .buttons {
         display: flex;
         flex-direction: column;
@@ -76,14 +76,14 @@
         width: 80%;
         max-width: 300px;
         padding: 14px 24px;
-        margin: 10px 0;
+        margin: 6px 0;
         border: none;
         border-radius: 6px;
         font-size: 18px;
         cursor: pointer;
         transition: background 0.3s ease;
       }
-      /* All buttons: red (#e74c3c) to pink (#ff6b81) on hover/click */
+      /* Button Styles: red (#e74c3c) to pink (#ff6b81) on hover/click */
       .yes,
       .reschedule,
       .reschedule-form button,
@@ -97,27 +97,13 @@
       .yes-form button:hover {
         background-color: #ff6b81;
       }
-      /* The actual No button (outside the container) */
-      #noBtn {
-        padding: 14px 24px;
-        border: none;
-        border-radius: 6px;
-        font-size: 18px;
-        cursor: pointer;
-        transition: background 0.3s ease;
+      /* The No button will initially appear with its own class */
+      .no {
         background-color: #e74c3c;
         color: #fff;
-        position: fixed;
       }
-      #noBtn:hover {
+      .no:hover {
         background-color: #ff6b81;
-      }
-      /* Placeholder for the No button layout */
-      #noBtnPlaceholder {
-        height: 50px; /* approximate button height */
-        width: 80%;
-        max-width: 300px;
-        margin: 10px 0;
       }
       /* Modal & Overlay Styles */
       .overlay {
@@ -184,7 +170,6 @@
       .reschedule-form button:hover {
         background-color: #ff6b81;
       }
-      /* Confirm button in the Yes modal (matches reschedule Send button) */
       .yes-form button {
         padding: 10px 20px;
         margin-top: 10px;
@@ -199,12 +184,19 @@
       .yes-form button:hover {
         background-color: #ff6b81;
       }
+      /* Adjust modal width on smaller screens */
+      @media (max-width: 600px) {
+        .modal {
+          max-width: 400px;
+          width: 90%;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="invitation-header">
-        <h1>Nick has invited you to</h1>
+        <h2>Nick has invited you to</h2>
         <div class="venue-name">Lolita Fort Point</div>
       </div>
       <img
@@ -220,15 +212,14 @@
       </p>
       <p class="info">Saturday, April 5th at 11:30 AM</p>
       <div class="buttons">
-        <!-- Yes button opens the Yes modal with details -->
+        <!-- Three buttons stacked vertically -->
         <button class="yes" onclick="openModal('yesModal')">Yes</button>
-        <button class="reschedule" onclick="openModal('rescheduleModal')">Reschedule</button>
-        <!-- Placeholder for the No button layout -->
-        <div id="noBtnPlaceholder"></div>
+        <button class="reschedule" onclick="openModal('rescheduleModal')">
+          Reschedule
+        </button>
+        <button class="no" id="noBtn" onclick="transformNoButton()">No</button>
       </div>
     </div>
-    <!-- The actual No button (moves when clicked) -->
-    <button id="noBtn" onclick="moveNoButton()">No</button>
 
     <!-- Yes Modal with Form and Details -->
     <div id="yesModal" class="modal">
@@ -278,16 +269,6 @@
         enableTime: true,
         dateFormat: "m/d/Y h:i K"
       });
-      
-      function positionNoButton() {
-        var placeholder = document.getElementById("noBtnPlaceholder").getBoundingClientRect();
-        var noBtn = document.getElementById("noBtn");
-        noBtn.style.width = placeholder.width + "px";
-        noBtn.style.left = placeholder.left + "px";
-        noBtn.style.top = placeholder.top + "px";
-      }
-      window.onload = positionNoButton;
-      window.addEventListener("resize", positionNoButton);
 
       // Open a modal and display the overlay.
       function openModal(modalId) {
@@ -303,24 +284,19 @@
         }
       }
 
-      function moveNoButton() {
+      // Transform the No button into a Yes button.
+      function transformNoButton() {
         var noBtn = document.getElementById("noBtn");
-        var containerRect = document.querySelector(".container").getBoundingClientRect();
-        var newX, newY;
-        do {
-          newX = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-          newY = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-        } while (
-          newX < containerRect.right &&
-          newX + noBtn.offsetWidth > containerRect.left &&
-          newY < containerRect.bottom &&
-          newY + noBtn.offsetHeight > containerRect.top
-        );
-        noBtn.style.left = newX + "px";
-        noBtn.style.top = newY + "px";
+        if (noBtn.innerText.trim().toLowerCase() === "no") {
+          noBtn.innerText = "Yes";
+          noBtn.className = "yes";
+          noBtn.onclick = function() {
+            openModal('yesModal');
+          };
+        }
       }
 
-      // Submit the Yes form, return thank you pop-up
+      // Submit the Yes form, return thank you message
       function submitYesForm(e) {
         e.preventDefault();
         const data = { response: "She said yes!" };
@@ -344,7 +320,7 @@
           });
       }
 
-      // Submit the Reschedule form, return thank you pop-up
+      // Submit the Reschedule form, return thank you message
       function submitRescheduleForm(e) {
         e.preventDefault();
         const form = e.target;
@@ -361,7 +337,7 @@
           .then((res) => {
             if (res.ok) {
               document.getElementById("rescheduleModal").innerHTML =
-                "<span class='close' onclick=\"closeModal('rescheduleModal')\">&times;</span><h2>Thank You!</h2><p>Your request will be reviewed. You should head back in 3-5 business days.</p>";
+                "<span class='close' onclick=\"closeModal('rescheduleModal')\">&times;</span><h2>Thank You!</h2><p>Oh thank you for rescheduling, your request will be reviewed. You should head back in 3-5 business days.</p>";
             } else {
               document.getElementById("rescheduleModal").innerHTML =
                 "<span class='close' onclick=\"closeModal('rescheduleModal')\">&times;</span><h2>Oops!</h2><p>Something went wrong. Please try again later.</p>";
